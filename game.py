@@ -2,7 +2,7 @@ import pygame
 import random as r
 pygame.init()
 
-WINDOW_SIZE: tuple = (800, 800)
+WINDOW_SIZE = [800, 800]
 window = pygame.display.set_mode(WINDOW_SIZE)
 clock = pygame.time.Clock()
 pong1 = pygame.image.load("paddle.png").convert_alpha()
@@ -22,12 +22,24 @@ run: bool = True
 direction = 1
 while run:
     window.fill("black")
-    pong1_pos[1] += (movement[1] - movement[0])*6
-    pong2_pos[1] += (movement2[1] - movement2[0])*6
     if rand_dir == 1:
         ball_pos[0] += 3 * direction
     else:
         ball_pos[0] += -3 * direction
+    if pong1_pos[1] < 0:
+        pong1_pos[1] = 1
+    elif pong1_pos[1] >= 715:
+        pong1_pos[1] = 714
+    else:
+        pong1_pos[1] += (movement[1] - movement[0]) * 7
+    if pong2_pos[1] < 0:
+        pong2_pos[1] = 1
+    elif pong2_pos[1] >= 715:
+        pong2_pos[1] = 714
+    else:
+        pong2_pos[1] += (movement2[1] - movement2[0]) * 7
+    if ball_pos[0] < 0 or ball_pos[0] >= WINDOW_SIZE[0]:
+        ball_pos = [WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] // 2]
     window.blit(pong1, pong1_pos)
     pong1_r.center = pong1_pos
     window.blit(pong2,pong2_pos)
@@ -58,6 +70,5 @@ while run:
             if event.key == pygame.K_DOWN:
                 movement2[1] = False
     pygame.display.update()
-    pygame.display.flip()
     clock.tick(60)
 pygame.quit()
