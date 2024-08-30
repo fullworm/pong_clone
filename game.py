@@ -1,5 +1,7 @@
 import pygame
 import random as r
+import math as m
+
 pygame.init()
 
 WINDOW_SIZE = [800, 800]
@@ -18,14 +20,19 @@ pong2_pos = [770,400]
 rand_y = r.randint(10,790)
 rand_dir = r.randint(0,1)
 ball_pos = [400, rand_y]
+hit = False
 run: bool = True
-direction = 1
+directionX = 1
+directionY = 1
+angle = 0
 while run:
     window.fill("black")
+    if hit:
+        ball_pos[1] += (3 * directionX) * m.sin(angle*directionY)
     if rand_dir == 1:
-        ball_pos[0] += 3 * direction
+        ball_pos[0] += 3 * directionX
     else:
-        ball_pos[0] += -3 * direction
+        ball_pos[0] += -3 * directionX
     if pong1_pos[1] < 0:
         pong1_pos[1] = 1
     elif pong1_pos[1] >= 715:
@@ -40,14 +47,18 @@ while run:
         pong2_pos[1] += (movement2[1] - movement2[0]) * 7
     if ball_pos[0] < 0 or ball_pos[0] >= WINDOW_SIZE[0]:
         ball_pos = [WINDOW_SIZE[0] // 2, WINDOW_SIZE[1] // 2]
-    window.blit(pong1, pong1_pos)
+    if ball_pos[1] <= 0 or ball_pos[1] >= WINDOW_SIZE[1]:
+        directionY *= -1
     pong1_r.center = pong1_pos
-    window.blit(pong2,pong2_pos)
     pong2_r.center = pong2_pos
-    window.blit(ball, ball_pos)
     ball_r.center = ball_pos
+    window.blit(pong1, pong1_r.center)
+    window.blit(pong2,pong2_r.center)
+    window.blit(ball, ball_r.center)
     if ball_r.colliderect(pong2_r) or ball_r.colliderect(pong1_r):
-        direction *= -1
+        directionX *= -1
+        hit = True
+        angle = r.randrange(-45,45)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -70,5 +81,5 @@ while run:
             if event.key == pygame.K_DOWN:
                 movement2[1] = False
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(80)
 pygame.quit()
