@@ -2,7 +2,6 @@ import random
 import math as m
 import pygame
 
-
 class Pong:
     def __init__(self, img_path, pos, screen_params):
         self.pong = pygame.image.load(img_path).convert_alpha()
@@ -36,6 +35,8 @@ class Ball:
         self.randY = random.randrange(5, self.screen_dims[1] - 5)
         self.pos = [self.screen_dims[0] // 2, self.randY]
         self.angle = 0
+        self.pointA = 0
+        self.pointB = 0
 
     def move(self):
         if self.rand_dir == 1:
@@ -45,9 +46,13 @@ class Ball:
         self.pos[1] += 3 * m.sin(m.radians(self.angle)) * self.directionY
         self.ball_r.center = (self.pos[0], self.pos[1])
 
-        if self.pos[0] < 0 or self.pos[0] >= self.screen_dims[0]:
+        if self.pos[0] < 0:
             self.pos = [self.screen_dims[0] // 2, self.screen_dims[1] // 2]
-        if self.pos[1] <= 0 or self.pos[1] >= self.screen_dims[1]:
+            self.pointB += 1
+        if self.pos[0] >= self.screen_dims[0]:
+            self.pos = [self.screen_dims[0] // 2, self.screen_dims[1] // 2]
+            self.pointA += 1
+        if self.pos[1] <= 0 or self.pos[1] >= self.screen_dims[1]-10:
             self.directionY *= -1
 
 class Game:
@@ -60,6 +65,7 @@ class Game:
         self.paddleOne = Pong("paddle.png", [10, 350], self.WINDOW_SIZE)
         self.paddleTwo = Pong("paddle.png", [782, 350], self.WINDOW_SIZE)
         self.ball = Ball("ball.png", self.WINDOW_SIZE)
+        self.line = pygame.image.load("dotted line.png").convert_alpha()
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -94,12 +100,19 @@ class Game:
             self.window.blit(self.ball.ball, self.ball.pos)
             self.window.blit(self.paddleOne.pong, self.paddleOne.pos)
             self.window.blit(self.paddleTwo.pong, self.paddleTwo.pos)
+            self.window.blit(self.line, (-15, 0))
             if self.ball.ball_r.colliderect(self.paddleOne.pong_r) or self.ball.ball_r.colliderect(
                     self.paddleTwo.pong_r):
                 self.ball.directionX *= -1
                 self.ball.angle = random.randrange(-45, 45)
+            font = pygame.font.Font("PixeloidMono-d94EV.ttf", 50)
+            text = font.render(f" {self.ball.pointA}             {self.ball.pointB} ", True, "white")
+            self.window.blit(
+                text,
+                (self.WINDOW_SIZE[0] // 2 - text.get_width() // 2, (self.WINDOW_SIZE[1]-750) - text.get_height() // 2)
+            )
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(80)
 
 
 
